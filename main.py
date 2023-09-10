@@ -17,6 +17,8 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report
 
 # Data Collection
+
+
 def scrap_customer_feedback(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -24,16 +26,20 @@ def scrap_customer_feedback(url):
     return [feedback.text for feedback in feedbacks]
 
 # Preprocessing and Text Cleaning
+
+
 def preprocess_text(text):
     text = re.sub(r'\W', ' ', text)
     text = re.sub(r'\s+', ' ', text)
     text = text.lower()
     return text
 
+
 def tokenize_and_stem(text):
     tokens = nltk.word_tokenize(text)
     stemmer = PorterStemmer()
     return [stemmer.stem(token) for token in tokens]
+
 
 def preprocess_and_tokenize(text):
     text = preprocess_text(text)
@@ -41,6 +47,8 @@ def preprocess_and_tokenize(text):
     return tokens
 
 # Neural Network Model Development
+
+
 def train_sentiment_analysis_model(X, y):
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(X)
@@ -54,7 +62,8 @@ def train_sentiment_analysis_model(X, y):
         X_padded, y, test_size=0.2, random_state=42)
 
     model = Sequential()
-    model.add(Embedding(len(word_index) + 1, 128, input_length=max_sequence_length))
+    model.add(Embedding(len(word_index) + 1, 128,
+              input_length=max_sequence_length))
     model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(1, activation='sigmoid'))
 
@@ -72,6 +81,7 @@ def train_sentiment_analysis_model(X, y):
 
     return model, tokenizer
 
+
 def evaluate_model(model, X_test, y_test, tokenizer):
     sequences = tokenizer.texts_to_sequences(X_test)
     max_sequence_length = model.input.shape[1]
@@ -84,6 +94,8 @@ def evaluate_model(model, X_test, y_test, tokenizer):
     return cm, cr
 
 # Data Visualization and Reporting
+
+
 def plot_confusion_matrix(cm, classes):
     plt.figure(figsize=(8, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
@@ -94,19 +106,24 @@ def plot_confusion_matrix(cm, classes):
     plt.yticks(np.arange(len(classes)), classes)
     plt.show()
 
+
 def report_classification_results(cr):
     print('Classification Report:')
     print(cr)
 
 # Main function
+
+
 def main():
     # Data Collection
     feedbacks = scrap_customer_feedback('https://example.com/feedback')
 
     # Preprocessing
-    processed_feedbacks = [preprocess_and_tokenize(feedback) for feedback in feedbacks]
+    processed_feedbacks = [preprocess_and_tokenize(
+        feedback) for feedback in feedbacks]
     stop_words = set(stopwords.words('english'))
-    filtered_feedbacks = [[word for word in feedback if word not in stop_words] for feedback in processed_feedbacks]
+    filtered_feedbacks = [[word for word in feedback if word not in stop_words]
+                          for feedback in processed_feedbacks]
     X = [' '.join(feedback) for feedback in filtered_feedbacks]
     y = [1 if 'positive' in feedback.lower() else 0 for feedback in feedbacks]
 
@@ -118,6 +135,7 @@ def main():
     classes = ['Negative', 'Positive']
     plot_confusion_matrix(cm, classes)
     report_classification_results(cr)
+
 
 if __name__ == '__main__':
     main()
